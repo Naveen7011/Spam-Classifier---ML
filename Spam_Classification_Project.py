@@ -146,7 +146,7 @@ with col1:
     st.header("Predict Bulk Messages from CSV")
     file=st.file_uploader("**Select a csv file**",type=["csv","txt"])
     if file:
-        df = pd.read_csv(io.BytesIO(file.getvalue()),header=None, names=["Message"])
+        df = pd.read_csv(io.BytesIO(file.getvalue()),header=None, names=["Msg"])
         # df=pd.read_csv(file,header=None,names=["Msg"])
         placeholder = st.empty()
         placeholder.dataframe(df,hide_index=True)
