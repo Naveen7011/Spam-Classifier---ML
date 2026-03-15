@@ -1,0 +1,198 @@
+import streamlit as st
+import joblib
+import pandas as pd
+import numpy as np
+import io
+
+vectorizer=joblib.load("vectorizer_spam.pkl")
+model=joblib.load("spam_model.pkl")
+
+st.set_page_config(layout="wide")
+
+# Sidebar Background Color
+st.markdown("""
+<style>
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg,#1E3C72,#2A5298);
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# Bold Header Text
+st.markdown("""
+<style>
+h1, h2, h3 {
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# Header Background Color
+st.markdown("""
+<style>
+header[data-testid="stHeader"] {
+background: linear-gradient(to right,#141E30,#243B55,#3A7BD5);
+border-bottom: 2px solid #2A5298;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# Page Background Color
+st.markdown("""
+<style>
+.stApp {
+background: linear-gradient(
+135deg,
+#0B0F2A,
+#1A1F5C,
+#2B2F77,
+#0F5F5A,
+#1E8A7A
+);
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# Sidebar color, font weight and font size
+st.markdown("""
+<style>
+section[data-testid="stSidebar"] * {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+</style>
+""", unsafe_allow_html=True)
+st.sidebar.image("Ham_Spam.png")
+st.sidebar.title("About Project")
+st.sidebar.write("This Project predicts whether a message is **Spam 🚫 or Ham ✔️**")
+
+st.sidebar.title("Features")
+st.sidebar.write("""
+ ⚫ **Single Message Prediction** \n
+ ⚫ **Bulk Message Prediction** 📂""")
+
+st.sidebar.title("Libraries") 
+st.sidebar.markdown("""
+⚫ 🔢 Numpy \n
+⚫ 🐼 Pandas \n
+⚫ 🤖 Scikit(sklearn)
+""")
+
+st.sidebar.title("Cloud")
+st.sidebar.markdown("☁️ Streamlit")
+
+st.sidebar.title("Contact")
+st.sidebar.markdown("📞9999999999")
+
+# Banner Text 
+st.markdown("""
+<style>
+.banner {
+        background: linear-gradient(to right,#0F2027,#1E4D4D,#2E8B57);
+        padding: 15px;
+        border-radius: 10px;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 40px;
+        font-weight: bold;
+        color: white;
+    }
+</style>
+<div class="banner">
+Spam Classifier
+</div>
+""", unsafe_allow_html=True)
+
+# Header Color
+st.markdown("""
+<style>
+h1, h2, h3, h4, h5, h6 {
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.write("\n")
+col1,col2=st.columns([.4,.6])
+with col1:
+    st.header("Predict Single Message")
+    review=st.text_input("**Enter Message**")
+    if st.button("Predict"):
+        X_test=vectorizer.transform([review])
+        pred=model.predict(X_test)
+        prob=model.predict_proba(X_test)
+        if pred[0]=="spam":
+            st.error("**Message type = Spam👎**")
+            st.warning(f"Confidance Score = {prob[0][1]:.2f}")
+        else:
+            st.success("**Message type = Ham 👍**")
+            st.warning(f"Confidance Score {prob[0][0]:.2f}")
+
+# st.markdown("")
+    st.write("")
+    st.write("")  
+    st.write("")
+    st.write("")   
+    st.write("")
+    st.write("")   
+    
+with col1:
+    st.header("Predict Bulk Messages from CSV")
+    file=st.file_uploader("**Select a csv file**",type=["csv","txt"])
+    if file:
+        df = pd.read_csv(io.BytesIO(file.getvalue()),header=None, names=["Message"])
+        # df=pd.read_csv(file,header=None,names=["Msg"])
+        placeholder = st.empty()
+        placeholder.dataframe(df,hide_index=True)
+        if st.button("Bulk Prediction",key="bulk_predict"):
+            X_test=vectorizer.transform(df.Msg)
+            pred=model.predict(X_test)
+            prob=model.predict_proba(X_test)
+            df['Message Type']=pred
+            df['Confidence']=np.max(prob,axis=1)
+            placeholder.dataframe(df, hide_index=True)
+            
+
+with col2:
+# Sample File Format
+    st.subheader("📂 Sample File Format")
+    
+    sample_data = pd.DataFrame({
+        "message": [
+            "Win a free iPhone now",
+            "Hello how are you doing today",
+            "Congratulations! You have won a lottery",
+            "Let's meet tomorrow for lunch",
+            "Claim your prize now by clicking this link"
+        ]
+    })
+
+    
+    st.dataframe(sample_data, hide_index=True) 
+   
+    st.subheader("📥 Download Sample File for Bulk Message Prediction below 👇")
+
+    with open("Sample_File1.csv","rb") as f1:
+            st.write("")
+            st.write("")
+            st.write("")
+            st.download_button(
+            "Download Bulk Message Sample1.CSV",
+            data=f1,
+            file_name="Sample_File1.csv",
+            mime="text/csv"
+        )
+
+    with open("Sample_File2.csv","rb") as f2:
+             st.download_button(
+            "Download Bulk Message Sample2.CSV",
+            data=f2,
+            file_name="Sample_File2.csv",
+            mime="text/csv"
+        )
